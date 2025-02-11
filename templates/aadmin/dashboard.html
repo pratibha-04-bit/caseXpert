@@ -1,0 +1,8 @@
+<!-- dashboard.html -->
+{% extends "base_generic.html" %}
+{% block content %}
+  <h2>Welcome, {{ user.username }}!</h2>
+  <p>Admin Dashboard</p>
+  <p><a href="{% url 'create_user' %}">Create a new user</a></p>
+  <p><a href="{% url 'logout' %}">Logout</a></p>
+{% endblock %}

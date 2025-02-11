@@ -1,0 +1,823 @@
+{% extends 'main.html' %}
+{% block style %}
+<style>
+    
+/* Decreased width for tactic containers */
+.tactic {
+    border: 1px solid #ddd;
+    margin: 5px;
+    width: 12%;  /* Reduced width to 12% */
+    padding: 1px;  /* Reduced padding for compactness */
+    background-color: #fff;
+    box-sizing: border-box;
+    height: 200px;  /* Fixed height for the tactic */
+    overflow-y: auto;  /* Enable scrolling if content overflows vertically */
+    border-radius: 5px;
+}
+
+.tactic h6 {
+    margin: 0;
+    padding: 0;
+    font-size: 10px;  /* Reduced font size */
+    color: #0a3868;
+    font-weight: bold;
+    text-align: center;
+}
+
+.techniques {
+    margin-top: 10px;
+    max-height: 150px;  /* Limit height for techniques list */
+    overflow-y: auto;  /* Enable vertical scroll if necessary */
+}
+
+/* Thin vertical scrollbar inside each tactic column */
+.tactic .techniques::-webkit-scrollbar {
+    width: 6px; /* Thin scrollbar width */
+}
+
+/* Style for the vertical scrollbar track (background of the scrollbar) inside each tactic column */
+.tactic .techniques::-webkit-scrollbar-track {
+    background-color: #f1f1f1; /* Light background for the track */
+}
+
+/* Style for the vertical scrollbar thumb (the draggable part) inside each tactic column */
+.tactic .techniques::-webkit-scrollbar-thumb {
+    background-color: #888; /* Grey thumb */
+    border-radius: 10px; /* Rounded corners */
+}
+
+/* Hover effect for the vertical scrollbar thumb inside each tactic column */
+.tactic .techniques::-webkit-scrollbar-thumb:hover {
+    background-color: #555; /* Darker thumb on hover */
+}
+
+/* For the horizontal scrollbar inside each tactic column (if needed) */
+.tactic .techniques::-webkit-scrollbar {
+    height: 6px; /* Thin scrollbar height for horizontal scrollbar */
+}
+
+/* Style for the horizontal scrollbar track */
+.tactic .techniques::-webkit-scrollbar-track {
+    background-color: #f1f1f1; /* Light background for the track */
+}
+
+/* Style for the horizontal scrollbar thumb (the draggable part) */
+.tactic .techniques::-webkit-scrollbar-thumb {
+    background-color: #888; /* Grey thumb */
+    border-radius: 10px; /* Rounded corners */
+}
+
+/* Hover effect for the horizontal scrollbar thumb */
+.tactic .techniques::-webkit-scrollbar-thumb:hover {
+    background-color: #555; /* Darker thumb on hover */
+}
+
+.technique {
+    margin-bottom: 5px;  /* Reduced margin */
+    font-size: 10px;  /* Smaller font size */
+}
+
+.technique a {
+    color: #0f1010;
+    text-decoration: none;
+}
+
+.technique a:hover {
+    text-decoration: underline;
+}
+
+.empty {
+    text-align: center;
+    color: #888;
+}
+
+.row.overflow-auto {
+    display: flex;
+    flex-wrap: nowrap;  /* Prevent wrapping */
+    overflow-x: auto;  /* Enable horizontal scrolling */
+    padding-bottom: 10px; /* Optional padding for scrollbar */
+}
+
+
+
+/* Severity colors */
+.bg-danger {
+    background-color: #dc3545 !important;  /* Red */
+}
+
+.bg-warning {
+    background-color: #ffc107 !important;  /* Orange/Yellow */
+}
+
+.bg-success {
+    background-color: #28a745 !important;  /* Green */
+}
+
+.bg-light {
+    background-color: #f8f9fa !important;  /* Light color for no severity */
+}
+
+/* Ensure text color inside techniques */
+.technique {
+    padding: 5px;
+    margin-bottom: 5px;
+    color: #fff;  /* Ensure text is readable on colored backgrounds */
+    border-radius: 5px;
+}
+
+.technique a {
+    color: #fff;  /* White text color for the link */
+    text-decoration: none;
+}
+
+.technique a:hover {
+    text-decoration: underline;
+}
+/*---- comment ----- */
+
+.comments {
+   
+    
+    border-radius: 8px;
+    
+   
+}
+
+.comment-actions {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 10px;
+}
+
+#comment-form textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    resize: none;
+    height: 120px;
+    box-sizing: border-box; /* Includes padding in width/height */
+    transition: all 0.3s ease;
+    background-color: #908e8e92;
+}
+
+#comment-form textarea:focus {
+    border-color: #007bff; /* Blue border on focus */
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Light blue shadow */
+}
+
+button[type="submit"] {
+    
+    font-size: 14px;
+    
+    
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+button[type="submit"]:focus {
+    outline: none;
+}
+
+.comment-actions {
+    padding-top: 10px;
+    display: flex;
+    justify-content: flex-start;
+}
+/* Custom styles for the accordion button */
+.card-header .btn {
+    font-size: 12px; /* Decrease font size */
+   /* Decrease padding to reduce height */
+    line-height: 0.2; /* Adjust line height for better alignment */
+  }
+   /* Overlay box styling */
+   .overlay-box {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000; /* Ensure it appears on top */
+    display: none; /* Hidden by default */
+  }
+
+  /* Remove button styling */
+  .remove-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    color: #dc3545; /* Red color for the remove button */
+    font-size: 20px;
+    background: none;
+    border: none;
+  }
+
+  /* Overlay background */
+  .overlay-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+    z-index: 999; /* Below the overlay box */
+    display: none; /* Hidden by default */
+  }
+
+  /* Floating Button */
+  .floating-btn {
+    position: fixed;
+    top: 50px;;
+    right: 40px;
+    
+    border: none;
+    padding: 12px 16px;
+  
+    font-size: 12px;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+}
+
+.floating-btn:hover {
+    transform: scale(1.1);
+}
+
+/* Full-Screen Sliding Panel */
+.sliding-panel {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 100%;
+    height: 100%;
+    background: #6c757d;
+    box-shadow: -4px 0px 10px rgba(0, 0, 0, 0.5);
+    transition: right 0.5s ease-in-out;
+    padding: 20px;
+    overflow: auto;
+}
+
+.sliding-panel.active {
+    right: 0;
+}
+
+/* Close Button */
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: #ff4d4d;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s ease-in-out;
+}
+
+.close-btn:hover {
+    background: #ff1a1a;
+}
+
+/* Table Styling */
+.data-table {
+    width: 100%;
+    height:100vh;
+    background: #2c2c2c;
+    color: #1b0ecd;
+    border-radius: 5px;
+}
+
+.data-table th, .data-table td {
+    padding: 10px;
+    text-align: left;
+}
+
+.data-table th {
+    background: #0dcaf0;
+}
+/* Decreased width for tactic containers */
+.tactic {
+    border: 1px solid #ddd;
+    margin: 2px;
+    width: 25%;  /* Reduced width to 12% */
+    padding: 1px;  /* Reduced padding for compactness */
+    background-color: #fff;
+    box-sizing: border-box;
+    height: 500%;  /* Fixed height for the tactic */
+    overflow-y: auto;  /* Enable scrolling if content overflows vertically */
+    border-radius: 5px;
+}
+
+.tactic h6 {
+    margin: 0;
+    padding: 0;
+    font-size: 10px;  /* Reduced font size */
+    color: #0a3868;
+    font-weight: bold;
+    text-align: center;
+}
+
+.techniques {
+    margin-top: 10px;
+    max-height: 350px;  /* Limit height for techniques list */
+    overflow-y: auto;  /* Enable vertical scroll if necessary */
+}
+
+/* Thin vertical scrollbar inside each tactic column */
+.tactic .techniques::-webkit-scrollbar {
+    width: 6px; /* Thin scrollbar width */
+}
+
+/* Style for the vertical scrollbar track (background of the scrollbar) inside each tactic column */
+.tactic .techniques::-webkit-scrollbar-track {
+    background-color: #f1f1f1; /* Light background for the track */
+}
+
+/* Style for the vertical scrollbar thumb (the draggable part) inside each tactic column */
+.tactic .techniques::-webkit-scrollbar-thumb {
+    background-color: #888; /* Grey thumb */
+    border-radius: 10px; /* Rounded corners */
+}
+
+/* Hover effect for the vertical scrollbar thumb inside each tactic column */
+.tactic .techniques::-webkit-scrollbar-thumb:hover {
+    background-color: #555; /* Darker thumb on hover */
+}
+
+/* For the horizontal scrollbar inside each tactic column (if needed) */
+.tactic .techniques::-webkit-scrollbar {
+    height: 6px; /* Thin scrollbar height for horizontal scrollbar */
+}
+
+/* Style for the horizontal scrollbar track */
+.tactic .techniques::-webkit-scrollbar-track {
+    background-color: #f1f1f1; /* Light background for the track */
+}
+
+/* Style for the horizontal scrollbar thumb (the draggable part) */
+.tactic .techniques::-webkit-scrollbar-thumb {
+    background-color: #888; /* Grey thumb */
+    border-radius: 10px; /* Rounded corners */
+}
+
+/* Hover effect for the horizontal scrollbar thumb */
+.tactic .techniques::-webkit-scrollbar-thumb:hover {
+    background-color: #555; /* Darker thumb on hover */
+}
+
+.technique {
+    margin-bottom: 5px;  /* Reduced margin */
+    font-size: 10px;  /* Smaller font size */
+}
+
+.technique a {
+    color: #0f1010;
+    text-decoration: none;
+}
+
+.technique a:hover {
+    text-decoration: underline;
+}
+/* Severity colors */
+.bg-danger {
+    background-color: #dc35466c !important;  /* Red */
+}
+
+.bg-warning {
+    background-color: #ffc1075d !important;  /* Orange/Yellow */
+}
+
+.bg-success {
+    background-color: #28a74660 !important;  /* Green */
+}
+
+.bg-light {
+    background-color: #f8f9fa !important;  /* Light color for no severity */
+}
+table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        canvas { max-width: 100%; }
+</style>
+{% endblock %}
+{% block content%}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-sm-4">
+        <h2>Project detail</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="index.html">Home</a>
+            </li>
+            <li class="breadcrumb-item active">
+                <strong>Project detail</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+<div class="wrapper wrapper-content animated fadeInUp">
+    <div class="row">
+        <div class="col-lg-9">
+            <div class="ibox">
+                <div class="ibox-content">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="m-b-md">
+                                <!-- <a href="#" class="btn btn-white btn-xs float-right">Edit project</a> -->
+
+                                <h3>{{ticket.ticket_id}} : {{ticket.title}}</h3>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <!-- Left Section: Description (Increased Width) -->
+                        <div class="col-md-7">
+                            <h4>Description</h4>
+                            <div class="border p-3">
+                                {{ formatted_description|safe }}
+                            </div>
+                        </div>
+                    
+                        <!-- Right Section: Ticket Info -->
+                        <div class="col-md-5">
+                            <div class="card">
+                                <div class="card-body">
+                                    <!-- Status Dropdown -->
+                                    <div class="row mb-2">
+                                        <div class="col-sm-4 text-sm-right">
+                                            <strong>Change Status:</strong>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <select id="status-dropdown" onchange="updateField('status', this.value)" class="form-control form-control-sm">
+                                                <option value="NEW" {% if ticket.status == "NEW" %}selected{% endif %}>New</option>
+                                                <option value="IN_PROGRESS" {% if ticket.status == "IN_PROGRESS" %}selected{% endif %}>In Progress</option>
+                                                <option value="RESOLVED" {% if ticket.status == "RESOLVED" %}selected{% endif %}>Resolved</option>
+                                                <option value="CLOSED" {% if ticket.status == "CLOSED" %}selected{% endif %}>Closed</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                    
+                                    <!-- Assignee Dropdown -->
+                                    <div class="row mb-2">
+                                        <div class="col-sm-4 text-sm-right">
+                                            <strong>Assignee:</strong>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <select id="assignee-dropdown" onchange="updateField('assignee', this.value)" class="form-control form-control-sm">
+                                                <option value="" {% if not ticket.assignee %}selected{% endif %}>Unassigned</option>
+                                                {% for user in users %}
+                                                    <option value="{{ user.id }}" {% if ticket.assignee and ticket.assignee.id == user.id %}selected{% endif %}>
+                                                        {{ user.username }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                    
+                                    <!-- Reputation -->
+                                    <div class="row mb-2">
+                                        <div class="col-sm-4 text-sm-right">
+                                            <strong>Reputation:</strong>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            {% if reputation < 1 %}
+                                                <p class="badge badge-danger p-2">{{ reputation }}</p>
+                                            {% else %}
+                                                <p class="text-success">0</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                    
+                                    <!-- Priority -->
+                                    <div class="row mb-2">
+                                        <div class="col-sm-4 text-sm-right">
+                                            <strong>Priority:</strong>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <p>{{ticket.priority}}</p>
+                                        </div>
+                                    </div>
+                    
+                                    <!-- Created At -->
+                                    <div class="row mb-2">
+                                        <div class="col-sm-4 text-sm-right">
+                                            <strong>Created At:</strong>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <p>{{ticket.created_at}}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    <!-- ########################### end of left section ####################### -->
+
+                    <!-- <div class="row">
+                        <div class="col-lg-12">
+                            <dl class="row mb-0">
+                                <div class="col-sm-2 text-sm-right">
+                                    <dt>Completed:</dt>
+                                </div>
+                                <div class="col-sm-10 text-sm-left">
+                                    <dd>
+                                        <div class="progress m-b-1">
+                                            <div style="width: 60%;" class="progress-bar progress-bar-striped progress-bar-animated"></div>
+                                        </div>
+                                        <small>Project completed in <strong>60%</strong>. Remaining close the project, sign a contract and invoice.</small>
+                                    </dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div> -->
+                    <!-- ###################### tab start ######################## -->
+                    <div class="row m-t-sm">
+                        <div class="col-lg-12">
+                            <!-- ############################### -->
+                                                    
+                            {% if results %}
+                            <h3>Results for Hash: {{ results.hash }}</h3>
+
+                            {% for source, data in results.APT_mapping.items %}
+                                <h4>{{ source }} Data</h4>
+                                {% if source == "MalwareBazaar" and data %}
+                                    <table border="1">
+                                        <tr><th>File Type</th><td>{{ data.file_type }}</td></tr>
+                                        <tr><th>File Name</th><td>{{ data.file_name }}</td></tr>
+                                        <tr><th>Reporter</th><td>{{ data.reporter }}</td></tr>
+                                        <tr><th>Signature</th><td>{{ data.signature }}</td></tr>
+                                        <tr><th>Tags</th><td>{{ data.tags|join:", " }}</td></tr>
+                                    </table>
+                                {% elif source == "ThreatFox" and data %}
+                                    <table border="1">
+                                        <tr>
+                                            {% for key in data.0.keys %}
+                                                <th>{{ key|capfirst }}</th>
+                                            {% endfor %}
+                                        </tr>
+                                        {% for entry in data %}
+                                            <tr>
+                                                {% for value in entry.values %}
+                                                    <td>{{ value }}</td>
+                                                {% endfor %}
+                                            </tr>
+                                        {% endfor %}
+                                    </table>
+                                {% elif source == "MISP" and data %}
+                                    <h3>MISP Threat Actors Visualization</h3>
+                                    <canvas id="mispChart"></canvas>
+                                {% else %}
+                                    <p>{{ data }}</p>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                                            
+                   
+
+                            <!-- ############################### -->
+                            
+                        </div>
+                    </div>
+                    <!-- ######################## tab end ################## -->
+                </div>
+            </div>
+
+            <div class="card">
+            
+           
+                <div class="card-body">
+                    <div class="comments animated">
+                        <h4>Add a Comments</h4>
+                        <br>
+                        <form method="POST" id="comment-form">
+                            {% csrf_token %}
+                            {{ comment_form.as_p }}
+                            <button type="submit" name="comment" class="btn btn-primary float-left">Post</button>
+                        </form>
+                        
+                    </div>
+            
+                    <!-- Display Comments -->
+                    <div class="comments-list animated">
+                        <h3>Comments</h3>
+                        {% for comment in comments %}
+                            <div>
+                                <strong>{{ comment.user.username }}:</strong> {{ comment.content }} <br>
+                                <em>Posted on {{ comment.created_at }}</em>
+                            </div>
+                        {% empty %}
+                            <p>No comments yet.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+    
+               
+    
+    
+    
+             </div>
+        </div>
+        <!-- ########################### right side ############################# -->
+        <div class="col-lg-3">
+            <div class="wrapper wrapper-content project-manager">
+              <h4>More Details</h4>
+          
+              <!-- Button Container with Flexbox -->
+              <div class="d-flex flex-column gap-3"> <!-- Flexbox container -->
+                <!-- AI Response Button -->
+                <button class="btn btn-outline-secondary" onclick="openOverlay()">
+                  AI Response
+                </button>
+          
+                <!-- Mitre Att&ck Details Button -->
+                <button class="btn btn-outline-secondary" onclick="openPanel()"  style="margin-top: 20px;">
+                  Mitre Att&ck Details ➤
+                </button>
+              </div>
+          
+              <!-- Overlay Background -->
+              <div class="overlay-background" id="overlayBackground"></div>
+          
+              <!-- Overlay Box -->
+              <div class="overlay-box" id="overlayBox">
+                <button class="remove-btn" onclick="closeOverlay()">×</button>
+               
+                <p>
+                    {{open_ai_resp}}
+                </p>
+              </div>
+          
+              <!-- Full-Screen Sliding Panel -->
+              <div class="sliding-panel" id="slidingPanel">
+                <button class="close-btn" onclick="closePanel()">✖ Close</button>
+                <h3 class="mt-4">🔍 Threat Intelligence Data</h3>
+          
+                <!-- Table of Data -->
+                <div class="container">
+                    <div class="row overflow-auto">
+                        {% for tactic_name, techniques in tactics_dict.items %}
+                            <div class="col-sm-1 tactic"> <!-- Decreased column width -->
+                                <h6>{{ tactic_name }}</h6>
+                                <hr style="border: 0.5px solid rgb(46, 45, 45);">
+                                <div class="techniques">
+                                    {% if techniques %}
+                                        {% for technique in techniques %}
+                                            <div class="technique text-center {% if technique.score == 3 %}bg-danger{% elif technique.score == 2 %}bg-warning{% elif technique.score == 1 %}bg-success{% else %}bg-light{% endif %}">
+                                                <a href="{{ technique.url }}" target="_blank" data-bs-toggle="tooltip" data-bs-html="true" title="{{ technique.id }}">
+                                                    {{ technique.name }}
+                                                </a>
+                                            </div>
+                                            <hr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="empty">No techniques available</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+              </div>
+            </div>
+          </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    function openOverlay() {
+      // Show the overlay box and background
+      document.getElementById('overlayBox').style.display = 'block';
+      document.getElementById('overlayBackground').style.display = 'block';
+    }
+
+    function closeOverlay() {
+      // Hide the overlay box and background
+      document.getElementById('overlayBox').style.display = 'none';
+      document.getElementById('overlayBackground').style.display = 'none';
+    }
+  </script>
+
+  <script>
+    function openPanel() {
+        document.getElementById("slidingPanel").classList.add("active");
+    }
+
+    function closePanel() {
+        document.getElementById("slidingPanel").classList.remove("active");
+    }
+</script>
+<script>
+    function updateField(field, value) {
+        fetch(window.location.href, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+            body: JSON.stringify({ field, value }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log(`${field} updated successfully`);
+            }
+        })
+        .catch(error => console.error('Error updating field:', error));
+    }
+    /*-- ############## comment ################## --*/
+
+    document.getElementById("comment-form").addEventListener("submit", function(e) {
+        e.preventDefault();  // Prevent the form from submitting the traditional way
+    
+        let formData = new FormData(this);
+    
+        // AJAX request to submit the form
+        fetch(window.location.href, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',  // Ensure CSRF token is included
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Append the new comment to the list without reloading the page
+                let newComment = data.comment;
+                let commentSection = document.querySelector(".comments-list");
+                let newCommentHTML = `
+                    <div>
+                        <strong>${newComment.user}</strong>: ${newComment.content} <br>
+                        <em>Posted on ${newComment.created_at}</em>
+                    </div>
+                `;
+                commentSection.innerHTML += newCommentHTML;  // Add the new comment to the list
+                // Clear the form fields after submission
+                document.getElementById("comment-form").reset();
+            } else {
+                console.error('Failed to add comment:', data.error);
+            }
+        })
+        .catch(error => console.error('Error adding comment:', error));
+    });
+
+    /*################ toggle ######################## */
+
+    function toggleSidebar() {
+        document.getElementById('data-bar').classList.toggle('open');
+        document.getElementById('main-container').classList.toggle('shrink-left');
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const chartDataElement = document.getElementById("chart-data");
+        if (chartDataElement) {
+            const rawData = JSON.parse(chartDataElement.textContent);
+            const labels = Object.keys(rawData);
+            const dataPoints = labels.map(label => rawData[label]?.length || 0);
+
+            if (labels.length > 0) {
+                const ctx = document.getElementById("resultsChart").getContext("2d");
+                new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: "APT Intelligence Sources",
+                            data: dataPoints,
+                            backgroundColor: "rgba(54, 162, 235, 0.6)",
+                            borderColor: "rgba(54, 162, 235, 1)",
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+            }
+        }
+    });
+</script>
+{% endblock %}

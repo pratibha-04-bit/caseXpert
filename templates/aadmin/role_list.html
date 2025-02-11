@@ -1,0 +1,19 @@
+{% extends 'base_generic.html' %}
+{% block content %}
+<h2>Role List</h2>
+<a href="{% url 'create_role' %}">Create Role</a>
+<table>
+    <tr>
+        <th>Role Name</th>
+        <th>Actions</th>
+    </tr>
+    {% for role in roles %}
+    <tr>
+        <td>{{ role.name }}</td>
+        <td>
+            <a href="{% url 'assign_permissions' role.id %}">Assign Permissions</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
